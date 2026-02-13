@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Real Earning Pro - Admin & Sheets</title>
+    <style>
+        /* Existing styles... */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0e27; color: #e6edf3; font-family: 'Poppins', sans-serif; overflow-x: hidden; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 15px; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; padding: 12px; transition: 0.3s; width: 100%; }
+        .page { display: none; padding: 20px; }
+        .page.active { display: block; }
+        .nav-bar { background: #0d1117; position: fixed; bottom: 0; width: 100%; height: 70px; display: flex; z-index: 100; border-top: 1px solid #30363d; }
+        .nav-btn { flex: 1; cursor: pointer; color: #8b949e; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; border:none; background:none; }
+        .nav-btn.active { color: #667eea; }
+        input, select { background: #0d1117 !important; border: 1px solid #30363d !important; color: white !important; padding: 12px !important; border-radius: 8px !important; width: 100% !important; margin-bottom: 15px; }
+        .header { background: #0d1117; padding: 15px 20px; border-bottom: 1px solid #30363d; position: sticky; top: 0; z-index: 50; }
+        .stat-box { background: #161b22; border-left: 3px solid #667eea; padding: 12px; border-radius: 8px; }
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .admin-card { background: #1c2128; border: 1px solid #30363d; padding: 15px; border-radius: 10px; text-align: center; }
+        .admin-card h4 { font-size: 12px; color: #8b949e; margin-bottom: 5px; }
+        .admin-card p { font-size: 20px; font-weight: bold; color: #667eea; }
+        .hidden { display: none !important; }
+        /* Game cards and other UI components from your original code */
+        .game-card { background: rgba(102, 126, 234, 0.1); border: 1px solid #30363d; border-radius: 12px; padding: 15px; margin-bottom: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="auth-screen" class="fixed inset-0 z-50 bg-[#0a0e27] flex items-center justify-center p-6" style="padding: 40px;">
+    <div class="w-full max-w-sm text-center">
+        <h1 style="color: #667eea; font-size: 30px; font-weight: 900;">💰 REAL EARNING</h1>
+        <p style="margin-bottom: 30px;">Admin & Sheets Pro</p>
+
+        <div id="login-form">
+            <input id="u-email" type="email" placeholder="Email">
+            <input id="u-pass" type="password" placeholder="Password">
+            <button onclick="handleLogin()" class="btn-primary">LOGIN</button>
+            <p onclick="toggleAuth()" style="margin-top: 15px; font-size: 13px; color: #8b949e; cursor: pointer;">Don't have an account? Sign Up</p>
+        </div>
+
+        <div id="signup-form" class="hidden">
+            <input id="s-name" type="text" placeholder="Full Name">
+            <input id="s-email" type="email" placeholder="Email">
+            <input id="s-pass" type="password" placeholder="Password">
+            <input id="s-ref" type="text" placeholder="Referral Code (Optional)">
+            <button onclick="handleSignup()" class="btn-primary">CREATE ACCOUNT</button>
+            <p onclick="toggleAuth()" style="margin-top: 15px; font-size: 13px; color: #8b949e; cursor: pointer;">Already have an account? Login</p>
+        </div>
+        
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #30363d;">
+        <input id="admin-key" type="password" placeholder="Admin Key" style="font-size: 12px;">
+        <button onclick="checkAdmin()" style="background: #238636; color: white; padding: 8px; border-radius: 5px; border:none; width: 100%;">Admin Panel</button>
+    </div>
+</div>
+
+<div id="app-content" class="hidden">
+    <header class="header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <p id="welcome-user" class="font-bold">Ahmad</p>
+            <span style="color: #667eea; font-weight: bold;">Rs <span id="top-balance">0</span></span>
+        </div>
+    </header>
+
+    <main style="padding: 20px; padding-bottom: 100px;">
+        <div id="p-home" class="page active">
+            <div class="admin-grid">
+                <div class="admin-card"><h4>Coins</h4><p id="user-coins">0</p></div>
+                <div class="admin-card"><h4>Friends</h4><p id="user-friends">0</p></div>
+            </div>
+            <div class="game-card" onclick="claimDailyReward()">🎁 Daily Reward (+50)</div>
+            <div class="game-card" onclick="nav('p-ads')">📺 Watch Unlimited Ads (+15)</div>
+            <div class="game-card" onclick="nav('p-withdraw')">💵 Withdraw (Min 5000)</div>
+        </div>
+
+        <div id="p-ads" class="page">
+            <h3>Watch & Earn</h3>
+            <div class="game-card" onclick="startAd()" style="margin-top: 20px; text-align: center; padding: 40px;">
+                <span style="font-size: 40px;">▶️</span><br>Click to Watch Ad
+            </div>
+            <button onclick="nav('p-home')" class="btn-primary">Back</button>
+        </div>
+
+        <div id="p-withdraw" class="page">
+            <h3>Withdraw Money</h3>
+            <input id="w-method" type="text" placeholder="EasyPaisa / JazzCash">
+            <input id="w-phone" type="number" placeholder="03XXXXXXXXX">
+            <button onclick="handleWithdraw()" class="btn-primary">Request Withdraw</button>
+            <button onclick="nav('p-home')" style="background: none; border: none; color: gray; width: 100%; margin-top: 10px;">Cancel</button>
+        </div>
+
+        <div id="p-admin" class="page">
+            <h2 style="margin-bottom: 20px;">🚀 Pro Admin Panel</h2>
+            <div class="admin-grid">
+                <div class="admin-card"><h4>Total Users</h4><p id="stat-users">0</p></div>
+                <div class="admin-card"><h4>Ads Watched</h4><p id="stat-ads">0</p></div>
+                <div class="admin-card"><h4>Total Coins</h4><p id="stat-coins">0</p></div>
+                <div class="admin-card"><h4>Withdrawals</h4><p id="stat-withdraw">0</p></div>
+            </div>
+            <h4 style="margin-bottom: 10px;">User List</h4>
+            <div id="admin-user-list" style="max-height: 300px; overflow-y: auto;"></div>
+            <button onclick="nav('p-home')" class="btn-primary" style="margin-top: 20px;">Exit Admin</button>
+        </div>
+    </main>
+
+    <nav class="nav-bar">
+        <button onclick="nav('p-home')" class="nav-btn">🏠 Home</button>
+        <button onclick="nav('p-ads')" class="nav-btn">📺 Ads</button>
+        <button onclick="nav('p-withdraw')" class="nav-btn">💵 Wallet</button>
+    </nav>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwtbHBzG_gEtDHKUoZTyGpDf6VoV3Ttz57kpmx15v8H9j7vYCd5Zbyh0xpXXI3u1Mkg/exec";
+    const ADMIN_PASS = "Ahmad@786";
+
+    let db = JSON.parse(localStorage.getItem('earningDB')) || {
+        users: [],
+        totalAdsWatched: 0,
+        totalWithdrawals: 0
+    };
+
+    let currentUser = null;
+
+    // --- Google Sheets Sync ---
+    function syncWithSheets(data) {
+        data.timestamp = new Date().toLocaleString();
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(() => console.log("Synced with Sheets")).catch(e => console.log("Sync Error", e));
+    }
+
+    // --- Auth Logic ---
+    function toggleAuth() {
+        document.getElementById('login-form').classList.toggle('hidden');
+        document.getElementById('signup-form').classList.toggle('hidden');
+    }
+
+    function handleSignup() {
+        const name = document.getElementById('s-name').value;
+        const email = document.getElementById('s-email').value;
+        const pass = document.getElementById('s-pass').value;
+
+        if(!name || !email || !pass) return alert("Please fill all fields");
+
+        const newUser = { name, email, pass, coins: 0, ads: 0, friends: 0, role: 'user' };
+        db.users.push(newUser);
+        saveDB();
+        
+        // Sync with Google Sheets
+        syncWithSheets({ type: 'Registration', name, email });
+        
+        alert("Account Created! Please Login.");
+        toggleAuth();
+    }
+
+    function handleLogin() {
+        const email = document.getElementById('u-email').value;
+        const pass = document.getElementById('u-pass').value;
+        const user = db.users.find(u => u.email === email && u.pass === pass);
+
+        if(user) {
+            currentUser = user;
+            showApp();
+        } else {
+            alert("Wrong credentials");
+        }
+    }
+
+    function checkAdmin() {
+        if(document.getElementById('admin-key').value === ADMIN_PASS) {
+            currentUser = { name: "Admin", role: "admin" };
+            showApp();
+            nav('p-admin');
+            loadAdminStats();
+        } else {
+            alert("Invalid Admin Key");
+        }
+    }
+
+    // --- Core Features ---
+    function showApp() {
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('app-content').classList.remove('hidden');
+        updateUI();
+    }
+
+    function updateUI() {
+        if(!currentUser) return;
+        document.getElementById('welcome-user').innerText = currentUser.name;
+        document.getElementById('user-coins').innerText = currentUser.coins || 0;
+        document.getElementById('top-balance').innerText = ((currentUser.coins || 0) / 100).toFixed(2);
+    }
+
+    function nav(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'p-admin') loadAdminStats();
+    }
+
+    function startAd() {
+        alert("Watching Ad... (30s)");
+        setTimeout(() => {
+            currentUser.coins += 15;
+            currentUser.ads += 1;
+            db.totalAdsWatched += 1;
+            saveDB();
+            updateUI();
+            
+            // Sync ad view to sheets
+            syncWithSheets({ type: 'Ad Watched', user: currentUser.email, coins: 15 });
+            alert("Success! +15 Coins");
+        }, 2000); // Demo timeout
+    }
+
+    function handleWithdraw() {
+        const method = document.getElementById('w-method').value;
+        const phone = document.getElementById('w-phone').value;
+
+        if(currentUser.coins < 5000) return alert("Min 5000 coins required");
+        
+        currentUser.coins -= 5000;
+        db.totalWithdrawals += 1;
+        saveDB();
+        
+        syncWithSheets({ type: 'Withdrawal', user: currentUser.email, method, phone, amount: "Rs 50" });
+        alert("Withdraw Request Sent!");
+        nav('p-home');
+    }
+
+    // --- Admin Panel Functions ---
+    function loadAdminStats() {
+        document.getElementById('stat-users').innerText = db.users.length;
+        document.getElementById('stat-ads').innerText = db.totalAdsWatched;
+        document.getElementById('stat-withdraw').innerText = db.totalWithdrawals;
+        
+        let totalCoins = 0;
+        let userHtml = "";
+        db.users.forEach(u => {
+            totalCoins += u.coins;
+            userHtml += `<div class="card" style="margin-bottom:5px; font-size:12px;">
+                <b>${u.name}</b> | ${u.email} | Coins: ${u.coins} | Ads: ${u.ads}
+            </div>`;
+        });
+        document.getElementById('stat-coins').innerText = totalCoins;
+        document.getElementById('admin-user-list').innerHTML = userHtml;
+    }
+
+    function saveDB() {
+        localStorage.setItem('earningDB', JSON.stringify(db));
+    }
+</script>
+</body>
+</html>
